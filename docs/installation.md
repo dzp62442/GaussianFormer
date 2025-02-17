@@ -50,5 +50,10 @@ pip install -e .
 
 ## 7. (Optional) For visualization
 ```bash
-pip install pyvirtualdisplay mayavi matplotlib==3.7.2 PyQt5
+pip install vtk==9.1.0
+pip install numpy pyvirtualdisplay mayavi==4.8.0 matplotlib==3.7.2 PyQt5 
+# 若系统中安装了 qt 库，即 /usr/lib/x86_64-linux-gnu 路径下存在 qt5 文件夹，仅需安装 python 库：
+pip install PyQt5
+# 若系统中没有安装 qt 库，需要完整安装：
+conda install -c conda-forge qt-main pyqt
 ```
