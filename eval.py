@@ -63,7 +63,7 @@ def main(local_rank, args):
     import model
     from dataset import get_dataloader
 
-    my_model = build_segmentor(cfg.model)
+    my_model = build_segmentor(cfg.model)  # <class 'model.segmentor.bev_segmentor.BEVSegmentor'>
     my_model.init_weights()
     n_parameters = sum(p.numel() for p in my_model.parameters() if p.requires_grad)
     logger.info(f'Number of params: {n_parameters}')
