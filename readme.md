@@ -113,24 +113,24 @@ We provide the following checkpoints trained on the SurroundOcc dataset:
 For the `out/prob/init/init.pth` : [weight](https://cloud.tsinghua.edu.cn/f/159a3370b4e843ddaec5/?dl=1)
 
 ```shell
-python eval.py --py-config config/xxxx.py --work-dir out/xxxx/ --resume-from out/xxxx/state_dict.pth
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/xxxx.py --work-dir out/xxxx/ --resume-from out/xxxx/state_dict.pth
 ```
 
 - NonEmpty / gs25600_solid：
 ```shell
-python eval.py --py-config config/nuscenes_gs25600_solid.py --work-dir out/gs25600_solid/ --resume-from out/gs25600_solid/state_dict.pth
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/nuscenes_gs25600_solid.py --work-dir out/gs25600_solid/ --resume-from out/gs25600_solid/state_dict.pth
 ```
 - Prob-64 / gs6400：
 ```shell
-python eval.py --py-config config/prob/nuscenes_gs6400.py --work-dir out/prob/gs6400/ --resume-from out/prob/gs6400/state_dict.pth
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/prob/nuscenes_gs6400.py --work-dir out/prob/gs6400/ --resume-from out/prob/gs6400/state_dict.pth
 ```
 - Prob-128 / gs12800：
 ```shell
-python eval.py --py-config config/prob/nuscenes_gs12800.py --work-dir out/prob/gs12800/ --resume-from out/prob/gs12800/state_dict.pth
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/prob/nuscenes_gs12800.py --work-dir out/prob/gs12800/ --resume-from out/prob/gs12800/state_dict.pth
 ```
 - Prob-256 / gs25600：
 ```shell
-python eval.py --py-config config/prob/nuscenes_gs25600.py --work-dir out/prob/gs25600/ --resume-from out/prob/gs25600/state_dict.pth
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/prob/nuscenes_gs25600.py --work-dir out/prob/gs25600/ --resume-from out/prob/gs25600/state_dict.pth
 ```
 
 ### Train

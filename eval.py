@@ -14,6 +14,7 @@ from mmseg.models import build_segmentor
 import warnings
 warnings.filterwarnings("ignore")
 
+import setproctitle
 
 def pass_print(*args, **kwargs):
     pass
@@ -175,6 +176,8 @@ def main(local_rank, args):
         
 
 if __name__ == '__main__':
+    setproctitle.setproctitle("dzp")
+    
     # Training settings
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--py-config', default='config/tpv_lidarseg.py')
