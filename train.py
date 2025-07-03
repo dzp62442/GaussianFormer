@@ -194,6 +194,8 @@ def main(local_rank, args):
         data_time_s = time.time()
         time_s = time.time()
         for i_iter, data in enumerate(train_dataset_loader):
+            # print(f'============================ {i_iter} ============================')
+
             if first_run:
                 i_iter = i_iter + last_iter
 
@@ -215,6 +217,7 @@ def main(local_rank, args):
                     loss_input.update({
                         loss_input_key: result_dict[loss_input_val]})
                 loss, loss_dict = loss_func(loss_input)
+                # print(f'loss: {loss}, loss_dict: {loss_dict}, grad_accumulation: {grad_accumulation}')
                 loss = loss / grad_accumulation
             if not amp:
                 loss.backward()

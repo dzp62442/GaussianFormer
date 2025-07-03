@@ -24,6 +24,7 @@ class GaussianHead(BaseTaskHead):
         **kwargs,
     ):
         super().__init__(init_cfg)
+        print(f"init_cfg: {init_cfg}")
         
         self.num_classes = num_classes
         self.use_localaggprob = use_localaggprob
@@ -46,7 +47,7 @@ class GaussianHead(BaseTaskHead):
             self.register_buffer('empty_rot', torch.tensor([1., 0., 0., 0.])[None, None, :])
             self.register_buffer('empty_sem', torch.zeros(self.num_classes)[None, None, :])
             self.register_buffer('empty_opa', torch.ones(1)[None, None, :])
-        self.with_emtpy = with_empty
+        self.with_empty = with_empty
         self.empty_args = empty_args
         self.dataset_type = dataset_type
         self.empty_label = empty_label
@@ -85,9 +86,12 @@ class GaussianHead(BaseTaskHead):
         rotations = gaussians.rotations # b, g, 4
         opacities = gaussians.semantics # b, g, c
         origi_opa = gaussians.opacities # b, g, 1
+        # print("Before add empty: ", opacities.shape, np.unique(opacities.cpu().numpy()))
+        # print("Before add empty: ", origi_opa.shape, np.unique(origi_opa.cpu().numpy()))
+        
         if origi_opa.numel() == 0:
             origi_opa = torch.ones_like(opacities[..., :1], requires_grad=False)
-        if self.with_emtpy:
+        if self.with_empty:
             assert opacities.shape[-1] == self.num_classes - 1
             if 'kitti' in self.dataset_type:
                 opacities = torch.cat([torch.zeros_like(opacities[..., :1]), opacities], dim=-1)
@@ -108,6 +112,9 @@ class GaussianHead(BaseTaskHead):
             else:
                 opacities = torch.cat([opacities, torch.zeros_like(opacities[..., :1])], dim=-1)
 
+        # print("After add empty: ", opacities.shape, np.unique(opacities.cpu().numpy()))
+        # print("After add empty: ", origi_opa.shape, np.unique(origi_opa.cpu().numpy()))
+        
         bs, g, _ = means.shape
         S = torch.zeros(bs, g, 3, 3, dtype=means.dtype, device=means.device)
         S[..., 0, 0] = scales[..., 0]
@@ -125,7 +132,9 @@ class GaussianHead(BaseTaskHead):
         metas=None,
         **kwargs
     ):
+        # print(f'----------------- gaussian_head forward -----------------')
         num_decoder = len(representation)
+        # print(f"Representation type: {type(representation)}, length: {len(representation)}, keys: {representation[0].keys()}")
         if not self.training:
             apply_loss_layers = [num_decoder - 1]
         elif self.apply_loss_type == "all":
@@ -140,18 +149,24 @@ class GaussianHead(BaseTaskHead):
             apply_loss_layers = self.fixed_apply_loss_layers
         else:
             raise NotImplementedError
+        # print(f"Apply loss layers: {apply_loss_layers}")
 
         prediction = []
         bin_logits = []
         density = []
+        # print(f"metas keys: {metas.keys()}")
         occ_xyz = metas['occ_xyz'].to(self.zero_tensor.device)
         occ_label = metas['occ_label'].to(self.zero_tensor.device)
         occ_cam_mask = metas['occ_cam_mask'].to(self.zero_tensor.device)
+        # print(f"occ_xyz: {occ_xyz.shape}, occ_label: {occ_label.shape}, occ_cam_mask: {occ_cam_mask.shape}")
         sampled_xyz, sampled_label = self._sampling(occ_xyz, occ_label, None)
+        # print(f"sampled_xyz: {sampled_xyz.shape} {sampled_xyz.dtype}, sampled_label: {sampled_label.shape} {sampled_label.dtype}")
         for idx in apply_loss_layers:
+            # print(f"Processing layer {idx} with representation keys: {representation[idx].keys()}")
             gaussians = representation[idx]['gaussian']
 
             means, origi_opa, opacities, scales, CovInv = self.prepare_gaussian_args(gaussians)
+            # print(f"means: {means.shape}, origi_opa: {origi_opa.shape}, opacities: {opacities.shape}, scales: {scales.shape}, CovInv: {CovInv.shape}")
             bs, g = means.shape[:2]
 
             semantics = self.aggregator(
@@ -160,7 +175,8 @@ class GaussianHead(BaseTaskHead):
                 origi_opa.reshape(bs, g),
                 opacities,
                 scales,
-                CovInv) # 1, c, n
+                CovInv) # n, c  体素数, 类别数
+            # print(f"semantics: {semantics.shape}")
             if self.use_localaggprob:
                 if self.combine_geosem:
                     sem = semantics[0][:, :-1] * semantics[1].unsqueeze(-1)
@@ -173,7 +189,7 @@ class GaussianHead(BaseTaskHead):
                 bin_logits.append(semantics[1][None])
                 density.append(semantics[2][None])
             else:
-                prediction.append(semantics[None].transpose(1, 2))
+                prediction.append(semantics[None].transpose(1, 2))  # bs, c, n  批量大小, 类别数, 体素数
         
         if self.use_localaggprob and not self.combine_geosem:
             threshold = kwargs.get("sigmoid_thresh", 0.5)
@@ -182,7 +198,9 @@ class GaussianHead(BaseTaskHead):
             final_prediction = torch.ones_like(final_semantics) * self.empty_label
             final_prediction[final_occupancy] = final_semantics[final_occupancy]
         else:
-            final_prediction = prediction[-1].argmax(dim=1)
+            final_prediction = prediction[-1].argmax(dim=1)  # bs, n  批量大小，体素数
+        # print("prediction: ", prediction[-1].shape, np.unique(prediction[-1].cpu().numpy()))
+        # print("final prediction: ", final_prediction.shape, np.unique(final_prediction.cpu().numpy()))
         
         return {
             'pred_occ': prediction,
