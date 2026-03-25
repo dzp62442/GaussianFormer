@@ -112,9 +112,19 @@ We provide the following checkpoints trained on the SurroundOcc dataset:
 | Prob-128 | GaussianFormer-2 | 12800 | 20.08 | [config](config/prob/nuscenes_gs12800.py) | [weight](https://cloud.tsinghua.edu.cn/f/b6038dca93574244ad57/?dl=1) |
 | Prob-256 | GaussianFormer-2 | 25600 | 20.33 | [config](config/prob/nuscenes_gs25600.py) | [weight](https://cloud.tsinghua.edu.cn/f/e30c9c92e4344783a7de/?dl=1) |
 
+For the `out/prob/init/init.pth` : [weight](https://cloud.tsinghua.edu.cn/f/159a3370b4e843ddaec5/?dl=1)
 
+```shell
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/xxxx.py --work-dir out/xxxx/ --resume-from out/xxxx/state_dict.pth
 ```
-python eval.py --py-config config/xxxx.py --work-dir out/xxxx/ --resume-from out/xxxx/state_dict.pth
+
+- NonEmpty / gs25600_solid：
+```shell
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/nuscenes_gs25600_solid.py --work-dir out/gs25600_solid/ --resume-from out/gs25600_solid/state_dict.pth
+```
+- Prob-64 / gs6400：
+```shell
+CUDA_VISIBLE_DEVICES=0 python eval.py --py-config config/prob/nuscenes_gs6400.py --work-dir out/prob/gs6400/ --resume-from out/prob/gs6400/state_dict.pth
 ```
 
 ### Train
@@ -122,6 +132,11 @@ python eval.py --py-config config/xxxx.py --work-dir out/xxxx/ --resume-from out
 Download the pretrained weights for the image backbone [HERE](https://github.com/zhiqi-li/storage/releases/download/v1.0/r101_dcn_fcos3d_pretrain.pth) and put it inside ckpts.
 ```bash
 python train.py --py-config config/xxxx.py --work-dir out/xxxx
+```
+
+- NonEmpty / gs25600_solid：
+```shell
+CUDA_VISIBLE_DEVICES=0 python train.py --py-config config/nuscenes_gs25600_solid.py --work-dir out/gs25600_solid/
 ```
 
 Stay tuned for more exciting work and models!🤗
