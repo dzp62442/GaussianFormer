@@ -139,6 +139,11 @@ python train.py --py-config config/xxxx.py --work-dir out/xxxx
 CUDA_VISIBLE_DEVICES=0 python train.py --py-config config/nuscenes_gs25600_solid.py --work-dir out/gs25600_solid/
 ```
 
+- Prob-64 / gs6400：
+```shell
+CUDA_VISIBLE_DEVICES=0 python train.py --py-config config/prob/nuscenes_gs6400.py --work-dir out/prob/gs6400/
+```
+
 Stay tuned for more exciting work and models!🤗
 
 ### Visualize
